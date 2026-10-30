@@ -50,7 +50,7 @@ pub struct Lesson {
 }
 
 impl Lesson {
-    /// How many recent attempts decide the stars.
+    /// How many recent attempts decide the stars (at least twice the pool).
     pub const RECENT: usize = 40;
     /// Attempts needed before any star is awarded.
     pub const MIN_ATTEMPTS: usize = 20;
@@ -61,11 +61,13 @@ impl Lesson {
 
     pub fn stars(&self, log: &[Attempt]) -> Stars {
         let pool = self.pool();
-        let recent: Vec<_> = log.iter().rev().filter(|a| pool.contains(&a.card)).take(Self::RECENT).collect();
+        let window = Self::RECENT.max(2 * pool.len());
+        let recent: Vec<_> = log.iter().rev().filter(|a| pool.contains(&a.card)).take(window).collect();
+        let covered = pool.iter().all(|c| recent.iter().any(|a| a.card == *c));
         let tally = Tally::of(recent.iter().copied());
         let (Some(accuracy), Some(median)) = (tally.accuracy(), tally.median()) else { return Stars(0) };
         Stars(match accuracy {
-            _ if recent.len() < Self::MIN_ATTEMPTS => 0,
+            _ if recent.len() < Self::MIN_ATTEMPTS || !covered => 0,
             a if a >= 0.95 && median <= Millis(1200) => 3,
             a if a >= 0.90 && median <= Millis(2000) => 2,
             a if a >= 0.80 => 1,
@@ -150,6 +152,7 @@ mod tests {
         assert_eq!(lesson.stars(&practise(lesson, 40, 6, 3000)), Stars(1));
         assert_eq!(lesson.stars(&practise(lesson, 40, 2, 800)), Stars(0));
         assert_eq!(LESSONS[1].stars(&practise(lesson, 40, usize::MAX, 800)), Stars(0), "only E4 and G4 overlap");
+        assert_eq!(LESSONS[3].stars(&practise(lesson, 40, usize::MAX, 800)), Stars(0), "D4..G5 not all practised");
     }
 
     #[test]
