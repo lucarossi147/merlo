@@ -7,17 +7,32 @@ use crate::screens::{commit, letter_of, Screen, Tile};
 use crate::store::{Input, Saved};
 use dioxus::prelude::*;
 use merlo_core::survivor::RANGES;
-use merlo_core::{Clef, Guess, Hit, Midi, Survivor};
+use merlo_core::{Clef, Guess, Hit, Midi, Survivor, Timestamp};
 
 /// Time between animation frames.
 const FRAME_MS: u64 = 33;
 /// Staff geometry: notes enter at `END` and must be played before `LINE`.
-const WIDTH: f64 = 600.0;
+const WIDTH: f64 = 440.0;
 const LINE: f64 = 84.0;
 const END: f64 = WIDTH - 18.0;
 
 fn best(saved: &Saved, range: usize) -> u32 {
     saved.best.get(RANGES[range].title).copied().unwrap_or(0)
+}
+
+/// The notes of one clef as drawn now; the one to play next is highlighted.
+fn staff_notes(game: &Survivor, clef: Clef, now: Timestamp) -> Vec<Note> {
+    game.notes()
+        .enumerate()
+        .filter(|(_, n)| n.card.clef == clef)
+        .map(|(i, n)| Note {
+            pos: n.card.position(),
+            x: scroll_x(n.progress(now), LINE, END),
+            color: if i == 0 { "var(--beak-dark)" } else { "var(--ink)" },
+            filled: false,
+            title: String::new(),
+        })
+        .collect()
 }
 
 #[component]
@@ -143,18 +158,7 @@ pub fn Run(range: usize) -> Element {
                         clef,
                         width: WIDTH,
                         hit_line: LINE,
-                        notes: state
-                            .notes()
-                            .enumerate()
-                            .filter(|(_, n)| n.card.clef == clef)
-                            .map(|(i, n)| Note {
-                                pos: n.card.position(),
-                                x: scroll_x(n.progress(now), LINE, END),
-                                color: if i == 0 { "var(--beak-dark)" } else { "var(--ink)" },
-                                filled: false,
-                                title: String::new(),
-                            })
-                            .collect::<Vec<_>>(),
+                        notes: staff_notes(&state, clef, now),
                     }
                 }
                 if state.is_over() {
@@ -190,5 +194,25 @@ pub fn GameOver(score: u32, record: u32, onagain: EventHandler, onback: EventHan
                 button { class: "btn primary", onclick: move |_| onagain.call(()), "Again" }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn notes_scroll_left_and_the_next_one_is_highlighted() {
+        let mut game = Survivor::new(RANGES[5].pool(), Timestamp(0), 3);
+        game.tick(Timestamp(4500));
+        let at = |t| {
+            [Clef::Treble, Clef::Bass].into_iter().flat_map(|c| staff_notes(&game, c, Timestamp(t))).collect::<Vec<_>>()
+        };
+        let notes = at(4500);
+        assert_eq!(notes.len(), 3);
+        assert_eq!(notes.iter().filter(|n| n.color == "var(--beak-dark)").count(), 1);
+        assert!(notes.iter().all(|n| (LINE..=END).contains(&n.x)));
+        let later = at(5500);
+        assert!(later.iter().zip(&notes).all(|(l, n)| l.x <= n.x), "everything moves towards the line");
     }
 }

@@ -151,6 +151,12 @@ fn snapshots() {
         ("summary", practised(), Screen::Summary { lesson: 0, answers }),
         ("stats", practised(), Screen::Stats),
         ("survivor-pick", practised(), Screen::SurvivorPick),
+        (
+            "survivor-grand",
+            Saved { settings: Settings { naming: Naming::Letters, input: Input::Piano }, ..Saved::default() },
+            Screen::Survivor(5),
+        ),
+        ("survivor-five", Saved::default(), Screen::Survivor(0)),
     ];
     std::fs::create_dir_all(&dir).unwrap();
     for (name, saved, screen) in pages {

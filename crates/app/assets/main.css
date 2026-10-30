@@ -325,16 +325,16 @@ button.pill { cursor: pointer; }
 @keyframes flash { from { opacity: 0.28; } to { opacity: 0; } }
 
 .game-over {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
   padding: 12px;
-  background: color-mix(in srgb, var(--card) 94%, transparent);
-  border-radius: inherit;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
   text-align: center;
 }
 .game-over .tiles { max-width: 260px; }
@@ -354,6 +354,7 @@ button.pill { cursor: pointer; }
     gap: 8px 20px;
     align-items: center;
   }
+  .drill:has(.piano) { grid-template-columns: 2fr 3fr; }
   .drill > .topbar { grid-column: 1 / -1; }
   .drill .stage { margin-top: 0; height: 100%; display: flex; flex-direction: column; justify-content: center; }
   .drill .stage .mascot { display: none; }
@@ -364,9 +365,9 @@ button.pill { cursor: pointer; }
 
   /* Survivor: the scrolling staff across the top, the keys below. */
   .survivor { gap: 8px; }
-  .survivor .staff { max-height: 44dvh; }
-  .survivor .stage:has(.staff + .staff) .staff { max-height: 24dvh; }
-  .survivor .piano { max-height: 34dvh; }
+  .survivor .staff { max-height: 40dvh; }
+  .survivor .stage:has(.staff + .staff) .staff { max-height: 20dvh; }
+  .survivor .piano { max-height: 32dvh; }
   .survivor .name { padding: 12px 0; }
 }
 
