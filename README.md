@@ -15,6 +15,8 @@ Written in Rust with [Dioxus](https://dioxuslabs.com): one codebase for web, des
 
 - **11 lessons** from middle C to the grand staff: treble and bass lines, spaces and ledger lines, unlocked one after the other.
 - **Two ways to answer:** seven name buttons (C D E… or Do Re Mi), or an on-screen piano where the octave counts. You can also type the letter keys on a keyboard.
+- **Survivor mode:** notes scroll towards a line, faster and faster. Play each one before it arrives; three lives. Six ranges from five notes to the grand staff, with a best score for each.
+- **Landscape support:** rotate the phone, and the staff and keys spread out to fill the screen.
 - **Adaptive drills:** notes you miss or read slowly come up more often.
 - **Accurate stats:** median reaction time per note (a heatmap on the staff), accuracy, daily trends over 14 days, and the notes you confuse most.
 - **Game layer:** XP with a speed bonus, levels, a daily goal, a day streak, 0–3 stars per lesson and 10 badges.
@@ -62,6 +64,7 @@ crates/
     pitch.rs       Letter, Accidental, Pitch (C4 = middle C), Midi keys
     staff.rs       Clef, StaffPos (0 = bottom line), Card = pitch in a clef
     drill.rs       Guess, Attempt, Drill state machine (Asking → Feedback → Done), adaptive picker
+    survivor.rs    Survivor state machine: spawn, scroll, speed curve, lives, ranges
     stats.rs       Tally, group_by, confusions, XP, streaks, levels, Profile
     curriculum.rs  Lessons as spans of staff positions; stars and unlocking
     badge.rs       Badges as predicates over the Profile
@@ -70,6 +73,7 @@ crates/
     glyphs.rs      Bravura clef and notehead outlines as SVG paths
     components.rs  Staff, Piano, NamePad, Mascot, …
     screens.rs     Home, Drill, Summary, Stats
+    survivor.rs    Survivor range picker, game loop, game over
     store.rs       persistence; platform.rs: clock, seed, timers
 ```
 
