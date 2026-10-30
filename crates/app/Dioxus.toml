@@ -7,3 +7,9 @@ title = "Merlo"
 [bundle]
 identifier = "app.merlo"
 publisher = "Luca Rossi"
+
+[android]
+# Recent Android versions warn about apps built for old ones.
+min_sdk = 24
+target_sdk = 35
+compile_sdk = 35
