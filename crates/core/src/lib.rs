@@ -15,6 +15,7 @@ pub mod pitch;
 pub mod rng;
 pub mod staff;
 pub mod stats;
+pub mod survivor;
 pub mod time;
 
 pub use badge::Badge;
@@ -24,4 +25,5 @@ pub use pitch::{Accidental, Letter, Midi, Naming, Pitch};
 pub use rng::Rng;
 pub use staff::{Card, Clef, StaffPos};
 pub use stats::{Profile, Tally};
+pub use survivor::{Falling, Hit, Survivor};
 pub use time::{Day, Millis, Timestamp};

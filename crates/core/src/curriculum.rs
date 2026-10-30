@@ -21,7 +21,7 @@ pub struct Span {
     pub filter: Filter,
 }
 
-const fn span(clef: Clef, lo: i8, hi: i8, filter: Filter) -> Span {
+pub(crate) const fn span(clef: Clef, lo: i8, hi: i8, filter: Filter) -> Span {
     Span { clef, lo: StaffPos(lo), hi: StaffPos(hi), filter }
 }
 
