@@ -79,8 +79,20 @@ mod backend {
 mod backend {
     use std::path::PathBuf;
 
+    /// Android gives each app a private folder named after its bundle
+    /// identifier (set in `Dioxus.toml`); elsewhere we use the OS data folder.
+    pub const ANDROID_DIR: &str = "/data/data/app.merlo/files";
+
+    fn dir() -> PathBuf {
+        if cfg!(target_os = "android") {
+            PathBuf::from(ANDROID_DIR)
+        } else {
+            dirs::data_dir().unwrap_or_else(|| PathBuf::from(".")).join("merlo")
+        }
+    }
+
     fn path(key: &str) -> PathBuf {
-        dirs::data_dir().unwrap_or_else(|| PathBuf::from(".")).join("merlo").join(format!("{key}.json"))
+        dir().join(format!("{key}.json"))
     }
 
     pub fn read(key: &str) -> Option<String> {
@@ -137,6 +149,13 @@ mod tests {
         let backups = written.borrow();
         assert_eq!(backups.len(), 1);
         assert!(backups[0].0.starts_with("merlo.corrupt.") && backups[0].1 == "{oops");
+    }
+
+    #[test]
+    fn android_folder_matches_the_bundle_identifier() {
+        let config = include_str!("../Dioxus.toml");
+        let id = backend::ANDROID_DIR.split('/').nth(3).unwrap();
+        assert!(config.contains(&format!("identifier = \"{id}\"")), "update ANDROID_DIR when the identifier changes");
     }
 
     #[test]
