@@ -30,4 +30,6 @@ cast_lossless = "allow"
 opt-level = "z"
 lto = true
 codegen-units = 1
-strip = true
+# No `strip`: dx would strip the web binary before wasm-bindgen runs, and since
+# LLVM 23 that deletes the custom section wasm-bindgen needs. wasm-opt already
+# shrinks the web build.
