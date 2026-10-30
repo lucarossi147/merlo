@@ -29,6 +29,7 @@
     --wing: #2a2a31;
     color-scheme: dark;
   }
+  .mascot .plumage { stroke: #4a4854; stroke-width: 1.2; }
 }
 
 * { box-sizing: border-box; }
@@ -170,7 +171,8 @@ button.pill { cursor: pointer; }
   border-radius: var(--radius);
   padding: 8px 8px 0;
 }
-.stage .mascot { position: absolute; top: 6px; right: 6px; }
+.stage { margin-top: 40px; }
+.stage .mascot { position: absolute; top: -52px; right: 12px; }
 .feedback { min-height: 28px; text-align: center; font-weight: 700; margin: 0 0 8px; color: var(--soft); }
 
 .staff { width: 100%; height: auto; display: block; color: var(--ink); }
@@ -211,7 +213,7 @@ button.pill { cursor: pointer; }
 
 .summary { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding-top: 24px; }
 .summary .stars { font-size: 32px; }
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; width: 100%; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)); gap: 8px; width: 100%; }
 .tile {
   display: flex;
   flex-direction: column;
@@ -221,7 +223,7 @@ button.pill { cursor: pointer; }
   padding: 10px;
   text-align: center;
 }
-.tile strong { font-size: 22px; }
+.tile strong { font-size: 20px; white-space: nowrap; }
 .tile small { color: var(--soft); }
 .new-badge { font-weight: 800; color: var(--beak-dark); margin: 0; }
 .actions { display: flex; gap: 10px; width: 100%; margin-top: 12px; }

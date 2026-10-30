@@ -52,7 +52,7 @@ pub fn Staff(clef: Clef, notes: Vec<Note>, #[props(default = 260.0)] width: f64)
     rsx! {
         svg {
             class: "staff",
-            view_box: "0 0 {width} 200",
+            view_box: "0 22 {width} 156",
             role: "img",
             "aria-label": "{clef.name()} staff",
             for y in staff_lines() {
@@ -246,8 +246,8 @@ mod tests {
                 Piano { lo: Midi(60), hi: Midi(64), marks: vec![(Midi(62), Mark::Right), (Midi(61), Mark::Wrong)], onpress: |_| {} }
             }
         });
-        assert_eq!(html.matches("<rect").count(), 12);
-        assert_eq!(html.matches("key white").count(), 7);
+        assert_eq!(html.matches("<rect").count(), 7, "B3..F4");
+        assert_eq!(html.matches("key white").count(), 5);
         assert!(html.contains("key white right") && html.contains("key black wrong"));
         assert!(html.contains(">C4<"));
     }

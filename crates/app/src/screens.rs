@@ -86,7 +86,9 @@ fn Home() -> Element {
                             strong { "{lesson.title}" }
                             small { "{lesson.hint}" }
                         }
-                        StarRow { stars: lesson.stars(&data.attempts).0 }
+                        if i < open {
+                            StarRow { stars: lesson.stars(&data.attempts).0 }
+                        }
                     }
                 }
             }
@@ -198,7 +200,7 @@ fn DrillScreen(lesson: usize) -> Element {
                 span { class: if streak >= 3 { "pill combo hot" } else { "pill combo" }, "🔥 {streak}" }
             }
             div { class: "stage",
-                Mascot { mood, size: 72.0 }
+                Mascot { mood, size: 64.0 }
                 if let Some(card) = card {
                     Staff {
                         clef: card.clef,

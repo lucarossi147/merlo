@@ -93,3 +93,29 @@ fn stats_when_empty() {
 fn unused_helpers_stay_honest() {
     assert_eq!(Midi(60).pitch().to_string(), "C4");
 }
+
+/// Set `MERLO_SNAPSHOTS=<dir>` to write every screen as a static page for visual review.
+#[test]
+fn snapshots() {
+    let Ok(dir) = std::env::var("MERLO_SNAPSHOTS") else { return };
+    let piano = Saved { settings: Settings { naming: Naming::Solfege, input: Input::Piano }, ..practised() };
+    let answers = practised().attempts[..20].to_vec();
+    let pages = [
+        ("home-new", Saved::default(), Screen::Home),
+        ("home", practised(), Screen::Home),
+        ("drill-names", practised(), Screen::Drill(0)),
+        ("drill-piano", piano, Screen::Drill(4)),
+        ("summary", practised(), Screen::Summary { lesson: 0, answers }),
+        ("stats", practised(), Screen::Stats),
+    ];
+    std::fs::create_dir_all(&dir).unwrap();
+    for (name, saved, screen) in pages {
+        let mut dom = VirtualDom::new_with_props(Shell, ShellProps::builder().saved(saved).screen(screen).build());
+        dom.rebuild_in_place();
+        let page = format!(
+            "<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width'><body>{}</body>",
+            dioxus_ssr::render(&dom)
+        );
+        std::fs::write(format!("{dir}/{name}.html"), page).unwrap();
+    }
+}

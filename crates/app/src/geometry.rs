@@ -32,11 +32,23 @@ impl KeyRect {
 
 pub const BLACK_WIDTH: f64 = 0.6;
 
-/// Keys from `lo` to `hi`, widened to whole octaves (C to B).
+/// The nearest white key strictly beyond `key`, one step in `dir` (±1).
+fn white_beyond(key: Midi, dir: i16) -> Midi {
+    let next = |k: i16| Midi((k + dir).clamp(0, 127) as u8);
+    let step = next(i16::from(key.0));
+    if step.is_black() {
+        next(i16::from(step.0))
+    } else {
+        step
+    }
+}
+
+/// Keys from `lo` to `hi` with one white key of margin on each side, so the
+/// edges of the keyboard don't give the answer away.
 /// White keys come first so black keys are drawn on top.
 pub fn keyboard(lo: Midi, hi: Midi) -> Vec<KeyRect> {
-    let first = lo.0 - lo.0 % 12;
-    let last = hi.0 - hi.0 % 12 + 11;
+    let first = white_beyond(lo, -1).0;
+    let last = white_beyond(hi, 1).0;
     let (whites, blacks): (Vec<_>, Vec<_>) = (first..=last)
         .map(Midi)
         .scan(0.0, |white_x, key| {
@@ -94,15 +106,17 @@ mod tests {
     }
 
     #[test]
-    fn keyboard_covers_whole_octaves() {
-        let keys = keyboard(Midi(62), Midi(65)); // D4..F4 → C4..B4
-        assert_eq!(keys.len(), 12);
-        assert_eq!(keys.iter().filter(|k| !k.is_black()).count(), 7);
+    fn keyboard_has_one_white_key_of_margin() {
+        let keys = keyboard(Midi(62), Midi(65)); // D4..F4 → C4..G4
+        assert_eq!(keys.len(), 8);
+        assert_eq!(keys.iter().filter(|k| !k.is_black()).count(), 5);
         assert_eq!(keys[0], KeyRect { key: Midi(60), x: 0.0, width: 1.0 });
         let c_sharp = keys.iter().find(|k| k.key == Midi(61)).unwrap();
         assert!((c_sharp.x - (1.0 - BLACK_WIDTH / 2.0)).abs() < 1e-9);
-        assert!(keys[..7].iter().all(|k| !k.is_black()), "whites first");
-        assert_eq!(keyboard(Midi(55), Midi(72)).len(), 36, "G3..C5 → C3..B5");
+        assert!(keys[..5].iter().all(|k| !k.is_black()), "whites first");
+        let wide = keyboard(Midi(57), Midi(84)); // A3..C6 → G3..D6
+        assert_eq!((wide[0].key, wide.iter().map(|k| k.key).max()), (Midi(55), Some(Midi(86))));
+        assert_eq!(keyboard(Midi(0), Midi(127)).len(), 128, "clamped to the MIDI range");
     }
 
     #[test]
