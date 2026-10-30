@@ -1,0 +1,34 @@
+[package]
+name = "merlo"
+description = "Merlo: learn to read music, one note at a time."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+merlo-core = { path = "../core" }
+dioxus = "0.7.10"
+serde.workspace = true
+serde_json.workspace = true
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "wasmbind"] }
+futures-timer = "3"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+futures-timer = { version = "3", features = ["wasm-bindgen"] }
+web-sys = { version = "0.3", features = ["Window", "Storage"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+dirs = "6"
+
+[dev-dependencies]
+dioxus-ssr = "0.7.10"
+
+[features]
+default = []
+web = ["dioxus/web"]
+desktop = ["dioxus/desktop"]
+mobile = ["dioxus/mobile"]
+
+[lints]
+workspace = true
