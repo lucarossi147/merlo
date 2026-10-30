@@ -143,7 +143,7 @@ mod tests {
 
         assert_eq!(load_with(&|_| None, &write), Saved::default());
         assert_eq!(load_with(&|_| Some(sample().to_json()), &write), sample());
-        assert!(written.borrow().is_empty());
+        assert_eq!(*written.borrow(), Vec::<(String, String)>::new());
 
         assert_eq!(load_with(&|_| Some("{oops".into()), &write), Saved::default());
         let backups = written.borrow();

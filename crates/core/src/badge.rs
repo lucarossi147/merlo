@@ -88,7 +88,7 @@ mod tests {
 
     #[test]
     fn nothing_for_a_newcomer() {
-        assert!(earned(&profile(0, 0, 0, 0, 0, 0)).is_empty());
+        assert_eq!(earned(&profile(0, 0, 0, 0, 0, 0)), Vec::<Badge>::new());
     }
 
     #[test]

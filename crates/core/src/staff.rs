@@ -104,9 +104,9 @@ mod tests {
     #[test]
     fn ledger_lines() {
         let lines = |pos| StaffPos(pos).ledger_lines().map(|p| p.0).collect::<Vec<_>>();
-        assert!(lines(-1).is_empty());
-        assert!(lines(4).is_empty());
-        assert!(lines(9).is_empty());
+        assert_eq!(lines(-1), Vec::<i8>::new());
+        assert_eq!(lines(4), Vec::<i8>::new());
+        assert_eq!(lines(9), Vec::<i8>::new());
         assert_eq!(lines(-2), [-2]);
         assert_eq!(lines(-5), [-4, -2]);
         assert_eq!(lines(10), [10]);
