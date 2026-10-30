@@ -1,0 +1,9 @@
+[application]
+name = "merlo"
+
+[web.app]
+title = "Merlo"
+
+[bundle]
+identifier = "app.merlo"
+publisher = "Luca Rossi"
