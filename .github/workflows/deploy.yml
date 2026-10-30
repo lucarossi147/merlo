@@ -1,0 +1,88 @@
+name: deploy
+
+# Every push to main publishes:
+#   - the web app on GitHub Pages: https://<user>.github.io/<repo>/
+#   - an installable Android APK on the repo's Releases page
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write # create releases
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  DX_VERSION: 0.7.10
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-binstall
+      - run: cargo binstall -y --force "dioxus-cli@$DX_VERSION"
+      - name: build
+        run: dx bundle -p merlo --web --release --base-path "${{ github.event.repository.name }}" --out-dir dist
+      - name: locate site root
+        id: site
+        run: echo "dir=$(dirname "$(find dist -name index.html | head -n1)")" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.site.outputs.dir }}
+
+  pages:
+    needs: web
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-binstall
+      - run: cargo binstall -y --force "dioxus-cli@$DX_VERSION"
+      - name: build APK
+        # The runner ships the Android SDK; point dx at its newest NDK.
+        # Without a signing key in Dioxus.toml, dx signs with a debug key:
+        # fine for sideloading onto your own phone, not for the Play Store.
+        run: |
+          export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
+          dx bundle -p merlo --android --release --target aarch64-linux-android --package-types apk --out-dir dist
+          cp "$(find dist target/dx -name '*.apk' | head -n1)" merlo.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: merlo-android
+          path: merlo.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Merlo build ${{ github.run_number }}
+          prerelease: true
+          files: merlo.apk
+          body: |
+            Android: download `merlo.apk` below on your phone and open it (allow installs from your browser when asked).
+            Web: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/

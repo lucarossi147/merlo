@@ -34,6 +34,17 @@ dx bundle -p merlo --platform web --release   # static site; dx prints the outpu
 
 Progress is saved in `localStorage` on the web, and in your data folder (`%APPDATA%\merlo\merlo.json` on Windows) on desktop. If a save file can't be read, it is backed up rather than overwritten.
 
+## Try it on your phone
+
+Every push to `main` runs [`deploy.yml`](.github/workflows/deploy.yml):
+
+- **Web:** published to GitHub Pages at `https://<user>.github.io/<repo>/`. Open it on any phone.
+- **Android:** an APK attached to a new pre-release on the **Releases** page. Open it on the phone and allow installs from your browser.
+
+One-time setup on GitHub: **Settings → Pages → Source: GitHub Actions**.
+
+The APK is signed with a debug key, which is fine for your own phone. For the Play Store, add a `[bundle.android]` keystore to `Dioxus.toml`. iOS needs a Mac and an Apple developer account, so it isn't in CI yet.
+
 ## Develop
 
 ```sh
