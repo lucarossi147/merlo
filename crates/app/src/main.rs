@@ -6,6 +6,7 @@ mod glyphs;
 mod platform;
 mod screens;
 mod store;
+mod survivor;
 
 use dioxus::prelude::*;
 

@@ -23,7 +23,7 @@ fn practised() -> Saved {
     let mut attempts: Vec<_> =
         LESSONS[0].pool().iter().cycle().take(40).map(|c| attempt(c.clef, &c.pitch.to_string(), true, 700)).collect();
     attempts.extend([attempt(Clef::Bass, "C3", false, 900), attempt(Clef::Bass, "D3", true, 2500)]);
-    Saved { settings: Settings::default(), attempts }
+    Saved { attempts, ..Saved::default() }
 }
 
 #[test]
@@ -49,7 +49,7 @@ fn drill_with_names_and_with_piano() {
     assert!(names.contains("class=\"staff\"") && names.contains("namepad"));
     assert!(!names.contains("class=\"piano\""));
 
-    let saved = Saved { settings: Settings { naming: Naming::Solfege, input: Input::Piano }, attempts: vec![] };
+    let saved = Saved { settings: Settings { naming: Naming::Solfege, input: Input::Piano }, ..Saved::default() };
     let piano = render(saved, Screen::Drill(10));
     assert!(piano.contains("class=\"piano\"") && !piano.contains("namepad"));
 }
@@ -94,6 +94,49 @@ fn unused_helpers_stay_honest() {
     assert_eq!(Midi(60).pitch().to_string(), "C4");
 }
 
+#[test]
+fn home_offers_survivor() {
+    let html = render(Saved::default(), Screen::Home);
+    assert!(html.contains("mode-card") && html.contains("Survivor"));
+    assert!(html.contains("class=\"app\""), "home keeps the narrow column");
+}
+
+#[test]
+fn survivor_ranges_show_best_scores() {
+    let saved = Saved { best: [("Bass staff".to_owned(), 42)].into(), ..Saved::default() };
+    let html = render(saved, Screen::SurvivorPick);
+    assert_eq!(html.matches("class=\"lesson\"").count(), merlo_core::survivor::RANGES.len());
+    assert!(html.contains("🏆 42") && html.contains("34 notes"));
+}
+
+#[test]
+fn survivor_run_starts_with_full_lives() {
+    let html = render(Saved::default(), Screen::Survivor(0));
+    assert!(html.contains("class=\"app wide\""));
+    assert_eq!(html.matches("class=\"heart\"").count(), 3);
+    assert_eq!(html.matches("class=\"staff\"").count(), 1);
+    assert!(html.contains("hit-line") && html.contains("namepad") && !html.contains("game-over"));
+
+    let piano = Saved { settings: Settings { naming: Naming::Letters, input: Input::Piano }, ..Saved::default() };
+    let grand = render(piano, Screen::Survivor(5));
+    assert_eq!(grand.matches("class=\"staff\"").count(), 2, "grand staff: one staff per clef");
+    assert!(grand.contains("class=\"piano\""));
+}
+
+#[test]
+fn game_over_card() {
+    fn ssr(app: fn() -> Element) -> String {
+        let mut dom = VirtualDom::new(app);
+        dom.rebuild_in_place();
+        dioxus_ssr::render(&dom)
+    }
+    let record =
+        ssr(|| rsx! { crate::survivor::GameOver { score: 30, record: 12, onagain: |()| {}, onback: |()| {} } });
+    assert!(record.contains("New record!") && record.contains(">30<"));
+    let plain = ssr(|| rsx! { crate::survivor::GameOver { score: 5, record: 12, onagain: |()| {}, onback: |()| {} } });
+    assert!(plain.contains("Out of lives") && plain.contains(">12<"));
+}
+
 /// Set `MERLO_SNAPSHOTS=<dir>` to write every screen as a static page for visual review.
 #[test]
 fn snapshots() {
@@ -107,6 +150,7 @@ fn snapshots() {
         ("drill-piano", piano, Screen::Drill(4)),
         ("summary", practised(), Screen::Summary { lesson: 0, answers }),
         ("stats", practised(), Screen::Stats),
+        ("survivor-pick", practised(), Screen::SurvivorPick),
     ];
     std::fs::create_dir_all(&dir).unwrap();
     for (name, saved, screen) in pages {

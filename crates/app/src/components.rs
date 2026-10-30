@@ -43,7 +43,14 @@ pub struct Note {
 const GLYPH_SCALE: f64 = 2.0 * HALF_GAP / glyphs::UNITS_PER_SPACE;
 
 #[component]
-pub fn Staff(clef: Clef, notes: Vec<Note>, #[props(default = 260.0)] width: f64) -> Element {
+pub fn Staff(
+    clef: Clef,
+    notes: Vec<Note>,
+    #[props(default = 260.0)] width: f64,
+    /// Where notes must be played by, in Survivor.
+    #[props(default)]
+    hit_line: Option<f64>,
+) -> Element {
     let (clef_path, clef_line) = match clef {
         Clef::Treble => (glyphs::G_CLEF, StaffPos(2)),
         Clef::Bass => (glyphs::F_CLEF, StaffPos(6)),
@@ -62,6 +69,9 @@ pub fn Staff(clef: Clef, notes: Vec<Note>, #[props(default = 260.0)] width: f64)
                 d: clef_path,
                 class: "clef",
                 transform: "translate(12 {clef_y}) scale({GLYPH_SCALE})",
+            }
+            if let Some(x) = hit_line {
+                line { x1: x, x2: x, y1: staff_y(StaffPos(12)), y2: staff_y(StaffPos(-4)), class: "hit-line" }
             }
             for note in notes {
                 NoteHead { note }

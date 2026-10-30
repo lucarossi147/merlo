@@ -4,6 +4,7 @@ use crate::components::{Bar, Mark, Mascot, Mood, NamePad, Note, Piano, Staff, St
 use crate::geometry::{heat, plot, points};
 use crate::platform;
 use crate::store::{self, Input, Saved, Settings};
+use crate::survivor;
 use dioxus::prelude::*;
 use merlo_core::curriculum::unlocked;
 use merlo_core::stats::{self, confusions, group_by, DAILY_GOAL};
@@ -19,13 +20,22 @@ pub enum Screen {
     Drill(usize),
     Summary { lesson: usize, answers: Vec<Attempt> },
     Stats,
+    SurvivorPick,
+    Survivor(usize),
+}
+
+impl Screen {
+    /// Playing screens use the whole width, e.g. a phone in landscape.
+    fn is_wide(&self) -> bool {
+        matches!(self, Self::Drill(_) | Self::Survivor(_))
+    }
 }
 
 /// Notes per drill session.
 pub const SESSION: usize = 20;
 
 /// Applies a change to the saved state and persists it.
-fn commit(mut saved: Signal<Saved>, change: impl FnOnce(&mut Saved)) {
+pub(crate) fn commit(mut saved: Signal<Saved>, change: impl FnOnce(&mut Saved)) {
     change(&mut saved.write());
     store::save(&saved.read());
 }
@@ -37,12 +47,14 @@ pub fn Shell(saved: Saved, screen: Screen) -> Element {
     let screen = use_context_provider(|| Signal::new(screen));
     rsx! {
         style { {CSS} }
-        main { class: "app",
+        main { class: if screen.read().is_wide() { "app wide" } else { "app" },
             match screen() {
                 Screen::Home => rsx! { Home {} },
                 Screen::Drill(lesson) => rsx! { DrillScreen { key: "{lesson}", lesson } },
                 Screen::Summary { lesson, answers } => rsx! { Summary { lesson, answers } },
                 Screen::Stats => rsx! { Stats {} },
+                Screen::SurvivorPick => rsx! { survivor::Pick {} },
+                Screen::Survivor(range) => rsx! { survivor::Run { key: "{range}", range } },
             }
         }
     }
@@ -73,6 +85,13 @@ fn Home() -> Element {
                 p { class: "bubble", "{greeting}" }
                 p { class: "goal-label", "Today {profile.today_xp.min(DAILY_GOAL)} / {DAILY_GOAL} XP" }
                 Bar { value: profile.goal_progress(), class: "goal" }
+            }
+        }
+        button { class: "mode-card", onclick: move |_| screen.set(Screen::SurvivorPick),
+            span { class: "mode-icon", "⚡" }
+            span { class: "lesson-text",
+                strong { "Survivor" }
+                small { "Notes rush in faster and faster. How long can you last?" }
             }
         }
         ol { class: "path",
@@ -140,7 +159,7 @@ fn marks<T: PartialEq + Copy>(
     }
 }
 
-fn letter_of(key: &str) -> Option<Letter> {
+pub(crate) fn letter_of(key: &str) -> Option<Letter> {
     let mut chars = key.chars().map(|c| c.to_ascii_uppercase());
     match (chars.next(), chars.next()) {
         (Some(c), None) => Letter::ALL.into_iter().find(|l| l.name(Naming::Letters).starts_with(c)),
@@ -267,7 +286,7 @@ fn Summary(lesson: usize, answers: Vec<Attempt>) -> Element {
 }
 
 #[component]
-fn Tile(value: String, label: &'static str) -> Element {
+pub(crate) fn Tile(value: String, label: &'static str) -> Element {
     rsx! {
         div { class: "tile", strong { "{value}" } small { "{label}" } }
     }

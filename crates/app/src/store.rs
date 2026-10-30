@@ -3,6 +3,7 @@
 
 use merlo_core::{Attempt, Naming};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 /// How the player answers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -26,6 +27,9 @@ pub struct Saved {
     pub settings: Settings,
     #[serde(default)]
     pub attempts: Vec<Attempt>,
+    /// Best Survivor score per range title.
+    #[serde(default)]
+    pub best: BTreeMap<String, u32>,
 }
 
 impl Saved {
@@ -123,6 +127,7 @@ mod tests {
         Saved {
             settings: Settings { naming: Naming::Solfege, input: Input::Piano },
             attempts: vec![Attempt { at: Timestamp(1), card, guess: Guess::Name(Letter::D), reaction: Millis(700) }],
+            best: BTreeMap::from([("Five notes".to_owned(), 12)]),
         }
     }
 

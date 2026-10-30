@@ -16,6 +16,11 @@ pub fn staff_lines() -> impl Iterator<Item = f64> {
     (0..=StaffPos::TOP.0).step_by(2).map(|p| staff_y(StaffPos(p)))
 }
 
+/// Horizontal position of a scrolling note: from `end` (just appeared) to `line` (too late).
+pub fn scroll_x(progress: f64, line: f64, end: f64) -> f64 {
+    line + (1.0 - progress.clamp(0.0, 1.0)) * (end - line)
+}
+
 /// One piano key in keyboard units, where a white key is 1 wide.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct KeyRect {
@@ -125,6 +130,13 @@ mod tests {
         assert_eq!(points(&pts), "0.0,50.0 100.0,0.0");
         assert_eq!(plot(&[Some(99.0)], 100.0, 50.0, (0.0, 10.0)), [(0.0, 0.0)], "clamped");
         assert_eq!(points(&plot(&[], 100.0, 50.0, (0.0, 1.0))), "");
+    }
+
+    #[test]
+    fn scrolling_runs_from_the_end_to_the_line() {
+        assert!((scroll_x(0.0, 80.0, 580.0) - 580.0).abs() < f64::EPSILON);
+        assert!((scroll_x(0.5, 80.0, 580.0) - 330.0).abs() < f64::EPSILON);
+        assert!((scroll_x(7.0, 80.0, 580.0) - 80.0).abs() < f64::EPSILON, "clamped at the line");
     }
 
     #[test]
