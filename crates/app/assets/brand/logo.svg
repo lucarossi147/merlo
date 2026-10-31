@@ -1,18 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
   <!-- Merlo: a stem-down eighth note that is also a blackbird.
-       Notehead = head (eye-ring, beak), stem = body, flag = a feather (penna). -->
+       Notehead = head (eye-ring, beak facing away from the flag), stem = body, flag = a feather (penna). -->
   <g fill="#18181c">
     <ellipse cx="55" cy="35" rx="16" ry="12" transform="rotate(-20 55 35)"/>
     <path d="M40 39 L45 39 L45 86 L40 86 Z"/>
     <path d="M42 87 C61 86 77 70 81 41 C73 56 60 66 43 71 Z"/>
   </g>
-  <g fill="none" stroke="#fbf7ef" stroke-linecap="round">
-    <path d="M45 82 C60 78 73 64 79 46" stroke-width="1.6"/>
-    <path d="M65.5 81.5 L61.8 77" stroke-width="2.4"/>
-    <path d="M77.2 64 L72.6 62" stroke-width="2.4"/>
-  </g>
-  <path d="M69 26.5 L84 30.5 L69.5 36 Z" fill="#f5a623"/>
-  <circle cx="61" cy="30" r="4.2" fill="#f5b82e"/>
-  <circle cx="61.6" cy="30" r="2.1" fill="#18181c"/>
-  <circle cx="62.4" cy="29.1" r="0.7" fill="#fff"/>
+  <path d="M44 27 L28 33.5 L44.5 37 Z" fill="#f5a623"/>
+  <circle cx="51" cy="31" r="4.2" fill="#f5b82e"/>
+  <circle cx="50.4" cy="31" r="2.1" fill="#18181c"/>
+  <circle cx="49.6" cy="30.1" r="0.7" fill="#fff"/>
 </svg>

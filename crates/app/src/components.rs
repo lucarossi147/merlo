@@ -199,7 +199,7 @@ pub fn Mascot(#[props(default)] mood: Mood, #[props(default = 96.0)] size: f64) 
 }
 
 /// The Merlo mark: a stem-down eighth note that is also a blackbird. The notehead
-/// is the head, the stem the body, the flag a feather. Same artwork as
+/// is the head, looking away from the flag, the stem the body, the flag a feather. Same artwork as
 /// `assets/brand/logo.svg`, from which the app icons are generated.
 #[component]
 pub fn Logo(#[props(default = 32.0)] size: f64) -> Element {
@@ -210,15 +210,10 @@ pub fn Logo(#[props(default = 32.0)] size: f64) -> Element {
                 path { d: "M40 39 L45 39 L45 86 L40 86 Z" }
                 path { d: "M42 87 C61 86 77 70 81 41 C73 56 60 66 43 71 Z" }
             }
-            g { class: "quill", fill: "none", stroke_linecap: "round",
-                path { d: "M45 82 C60 78 73 64 79 46", stroke_width: 1.6 }
-                path { d: "M65.5 81.5 L61.8 77", stroke_width: 2.4 }
-                path { d: "M77.2 64 L72.6 62", stroke_width: 2.4 }
-            }
-            path { d: "M69 26.5 L84 30.5 L69.5 36 Z", class: "beak" }
-            circle { cx: 61, cy: 30, r: 4.2, class: "eye-ring" }
-            circle { cx: 61.6, cy: 30, r: 2.1, class: "pupil" }
-            circle { cx: 62.4, cy: 29.1, r: 0.7, fill: "white" }
+            path { d: "M44 27 L28 33.5 L44.5 37 Z", class: "beak" }
+            circle { cx: 51, cy: 31, r: 4.2, class: "eye-ring" }
+            circle { cx: 50.4, cy: 31, r: 2.1, class: "pupil" }
+            circle { cx: 49.6, cy: 30.1, r: 0.7, fill: "white" }
         }
     }
 }
@@ -312,7 +307,7 @@ mod tests {
     fn logo_matches_the_brand_artwork() {
         let html = render_element(|| rsx! { Logo { size: 24.0 } });
         let svg = include_str!("../assets/brand/logo.svg");
-        for shape in ["M40 39 L45 39 L45 86", "M42 87 C61 86 77 70 81 41", "M69 26.5 L84 30.5"] {
+        for shape in ["M40 39 L45 39 L45 86", "M42 87 C61 86 77 70 81 41", "M44 27 L28 33.5"] {
             assert!(html.contains(shape) && svg.contains(shape), "{shape}");
         }
         assert!(html.contains("width=24"));

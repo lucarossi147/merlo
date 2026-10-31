@@ -83,7 +83,6 @@ button.pill:active { transform: translateY(1px); }
 .logo .plumage { fill: var(--plumage); }
 .logo .beak { fill: var(--beak); }
 .logo .eye-ring { fill: #f5b82e; }
-.logo .quill { stroke: #fbf7ef; }
 .logo .pupil { fill: var(--plumage); }
 .pill.ghost { background: transparent; }
 .streak { color: var(--beak-dark); }
