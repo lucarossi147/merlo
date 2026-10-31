@@ -82,6 +82,8 @@ button.pill:active { transform: translateY(1px); }
 .logo { flex: none; }
 .logo .plumage { fill: var(--plumage); }
 .logo .beak { fill: var(--beak); }
+.logo .beak-low { fill: #d9860c; }
+.logo .gloss { fill: none; stroke: #fff; stroke-opacity: 0.22; stroke-width: 2.6; stroke-linecap: round; }
 .logo .eye-ring { fill: #f5b82e; }
 .logo .pupil { fill: var(--plumage); }
 .pill.ghost { background: transparent; }

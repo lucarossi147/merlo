@@ -49,7 +49,7 @@ The APK is signed with a debug key, which is fine for your own phone. For the Pl
 
 ## Brand
 
-The logo is a stem-down eighth note that is also a blackbird: the notehead is the head (eye-ring, and a beak facing away from the flag), the stem is the body and the flag is a plain feather. It lives in [`crates/app/assets/brand/logo.svg`](crates/app/assets/brand/logo.svg) and is drawn in-app by the `Logo` component.
+The logo is an eighth note that is also a blackbird: the notehead is the head, with the beak pointing left; the stem rises on its right; and the flag is a plain feather sweeping down.
 
 The Android launcher icons in `crates/app/android/res/` are generated from it by `python3 crates/app/assets/brand/make_icons.py`. The deploy workflow lays them over dx's defaults, along with a theme that keeps the app below the status bar on Android 15.
 

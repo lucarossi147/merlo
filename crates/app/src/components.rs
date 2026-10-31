@@ -198,25 +198,32 @@ pub fn Mascot(#[props(default)] mood: Mood, #[props(default = 96.0)] size: f64) 
     }
 }
 
-/// The Merlo mark: a stem-down eighth note that is also a blackbird. The notehead
-/// is the head, looking away from the flag, the stem the body, the flag a feather. Same artwork as
-/// `assets/brand/logo.svg`, from which the app icons are generated.
+/// The Merlo mark: an eighth note that is also a blackbird. The notehead is the
+/// head (beak to the left), the stem rises on its right, and the flag is a plain
+/// feather sweeping down. Same artwork as `assets/brand/logo.svg`, from which
+/// the app icons are generated.
 #[component]
 pub fn Logo(#[props(default = 32.0)] size: f64) -> Element {
     rsx! {
-        svg { class: "logo", width: size, height: size, view_box: "16 16 76 76", role: "img", "aria-label": "Merlo",
+        svg { class: "logo", width: size, height: size, view_box: "11 14 80 80", role: "img", "aria-label": "Merlo",
             g { class: "plumage",
-                ellipse { cx: 55, cy: 35, rx: 16, ry: 12, transform: "rotate(-20 55 35)" }
-                path { d: "M40 39 L45 39 L45 86 L40 86 Z" }
-                path { d: "M42 87 C61 86 77 70 81 41 C73 56 60 66 43 71 Z" }
+                path { d: FEATHER }
+                path { d: STEM }
+                ellipse { cx: 46.5, cy: 74, rx: 17, ry: 13.5, transform: "rotate(-18 46.5 74)" }
             }
-            path { d: "M44 27 L28 33.5 L44.5 37 Z", class: "beak" }
-            circle { cx: 51, cy: 31, r: 4.2, class: "eye-ring" }
-            circle { cx: 50.4, cy: 31, r: 2.1, class: "pupil" }
-            circle { cx: 49.6, cy: 30.1, r: 0.7, fill: "white" }
+            path { d: "M38 66.5 C42 62.5 49 61 54.5 62.5", class: "gloss" }
+            path { d: "M33.5 70.5 L16.5 76.5 L33.5 76.5 Z", class: "beak" }
+            path { d: "M33.5 76.5 L16.5 76.5 L34.5 81 Z", class: "beak-low" }
+            circle { cx: 40.5, cy: 71.5, r: 5, class: "eye-ring" }
+            circle { cx: 39.8, cy: 71.7, r: 2.7, class: "pupil" }
+            circle { cx: 38.8, cy: 70.6, r: 0.95, fill: "white" }
         }
     }
 }
+
+const FEATHER: &str = "M58.5 20 L64.5 20 C65.5 29 70 35 75.5 41.5 C82 49 85 58 82.5 68 C81.5 72 79.5 75.5 77 78.5 \
+     C79 72.5 79.5 66.5 77.5 61 C75.5 55.5 71 51.5 64.5 49.5 L58.5 49.5 Z";
+const STEM: &str = "M58.5 20 L64.5 20 L65.2 64 C65.2 70 63 76 56 79 Z";
 
 #[component]
 pub fn StarRow(stars: u8) -> Element {
@@ -307,7 +314,7 @@ mod tests {
     fn logo_matches_the_brand_artwork() {
         let html = render_element(|| rsx! { Logo { size: 24.0 } });
         let svg = include_str!("../assets/brand/logo.svg");
-        for shape in ["M40 39 L45 39 L45 86", "M42 87 C61 86 77 70 81 41", "M44 27 L28 33.5"] {
+        for shape in [STEM, FEATHER, "M33.5 70.5 L16.5 76.5", "M33.5 76.5 L16.5 76.5"] {
             assert!(html.contains(shape) && svg.contains(shape), "{shape}");
         }
         assert!(html.contains("width=24"));
