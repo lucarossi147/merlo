@@ -67,14 +67,29 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@cargo-binstall
       - run: cargo binstall -y --force "dioxus-cli@$DX_VERSION"
-      - name: unlock the signing key
-        # The release key lives encrypted in the repo; one secret unlocks it.
+      - name: unlock (or create, on first run) the signing key
+        # The release key lives encrypted in the repo; the ANDROID_KEY_PASSWORD secret unlocks it.
         # Same key every build, so new APKs install over old ones and keep your progress.
+        # On the first run the key doesn't exist yet: create it, encrypt it, and commit it.
         env:
           PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY: .github/android/merlo.jks.enc
         if: env.HAS_KEY == 'true'
         run: |
-          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in .github/android/merlo.jks.enc -out merlo.jks -pass env:PASSWORD
+          if [ -f "$KEY" ]; then
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in "$KEY" -out merlo.jks -pass env:PASSWORD
+          else
+            keytool -genkeypair -keystore merlo.jks -storetype PKCS12 -alias merlo -keyalg RSA -keysize 4096 \
+              -validity 10000 -storepass "$PASSWORD" -keypass "$PASSWORD" -dname "CN=Luca Rossi, O=Merlo"
+            mkdir -p "$(dirname "$KEY")"
+            openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in merlo.jks -out "$KEY" -pass env:PASSWORD
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add "$KEY"
+            git commit -m "ci(android): add encrypted release signing key"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
           cat >> crates/app/Dioxus.toml <<EOF
 
           [bundle.android]
