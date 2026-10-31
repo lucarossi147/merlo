@@ -198,22 +198,27 @@ pub fn Mascot(#[props(default)] mood: Mood, #[props(default = 96.0)] size: f64) 
     }
 }
 
-/// The Merlo mark: an eighth note that is also a blackbird. Same artwork as
+/// The Merlo mark: a stem-down eighth note that is also a blackbird. The notehead
+/// is the head, the stem the body, the flag a feather. Same artwork as
 /// `assets/brand/logo.svg`, from which the app icons are generated.
 #[component]
 pub fn Logo(#[props(default = 32.0)] size: f64) -> Element {
     rsx! {
-        svg { class: "logo", width: size, height: size, view_box: "18 18 72 72", role: "img", "aria-label": "Merlo",
+        svg { class: "logo", width: size, height: size, view_box: "16 16 76 76", role: "img", "aria-label": "Merlo",
             g { class: "plumage",
-                ellipse { cx: 42, cy: 73, rx: 14.5, ry: 10.5, transform: "rotate(-24 42 73)" }
-                path { d: "M52.6 68.5 L52.6 36 L57.4 36 L57.4 66 Z" }
-                path { d: "M57 41 C71 45 77 55 71.5 69 C72 59 66 52.5 57 50.5 Z" }
-                circle { cx: 58, cy: 32, r: 10 }
+                ellipse { cx: 55, cy: 35, rx: 16, ry: 12, transform: "rotate(-20 55 35)" }
+                path { d: "M40 39 L45 39 L45 86 L40 86 Z" }
+                path { d: "M42 87 C61 86 77 70 81 41 C73 56 60 66 43 71 Z" }
             }
-            path { d: "M66.5 27.5 L81 32 L66.5 36.5 Z", class: "beak" }
-            circle { cx: 60.5, cy: 29.5, r: 3.6, class: "eye-ring" }
-            circle { cx: 60.9, cy: 29.5, r: 1.8, class: "pupil" }
-            circle { cx: 61.6, cy: 28.7, r: 0.6, fill: "white" }
+            g { class: "quill", fill: "none", stroke_linecap: "round",
+                path { d: "M45 82 C60 78 73 64 79 46", stroke_width: 1.6 }
+                path { d: "M65.5 81.5 L61.8 77", stroke_width: 2.4 }
+                path { d: "M77.2 64 L72.6 62", stroke_width: 2.4 }
+            }
+            path { d: "M69 26.5 L84 30.5 L69.5 36 Z", class: "beak" }
+            circle { cx: 61, cy: 30, r: 4.2, class: "eye-ring" }
+            circle { cx: 61.6, cy: 30, r: 2.1, class: "pupil" }
+            circle { cx: 62.4, cy: 29.1, r: 0.7, fill: "white" }
         }
     }
 }
@@ -307,7 +312,7 @@ mod tests {
     fn logo_matches_the_brand_artwork() {
         let html = render_element(|| rsx! { Logo { size: 24.0 } });
         let svg = include_str!("../assets/brand/logo.svg");
-        for shape in ["M52.6 68.5 L52.6 36", "M57 41 C71 45", "M66.5 27.5 L81 32"] {
+        for shape in ["M40 39 L45 39 L45 86", "M42 87 C61 86 77 70 81 41", "M69 26.5 L84 30.5"] {
             assert!(html.contains(shape) && svg.contains(shape), "{shape}");
         }
         assert!(html.contains("width=24"));
