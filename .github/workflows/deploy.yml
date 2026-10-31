@@ -76,11 +76,15 @@ jobs:
           KEY: .github/android/merlo.jks.enc
         if: env.HAS_KEY == 'true'
         run: |
+          # The keystore password is derived from the secret as hex, because Dioxus.toml,
+          # dx's template and the Kotlin build script each mangle characters like $ = & ".
+          KEYPASS="$(printf '%s' "$PASSWORD" | sha256sum | cut -c1-40)"
+          echo "::add-mask::$KEYPASS"
           if [ -f "$KEY" ]; then
             openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in "$KEY" -out merlo.jks -pass env:PASSWORD
           else
             keytool -genkeypair -keystore merlo.jks -storetype PKCS12 -alias merlo -keyalg RSA -keysize 4096 \
-              -validity 10000 -storepass "$PASSWORD" -keypass "$PASSWORD" -dname "CN=Luca Rossi, O=Merlo"
+              -validity 10000 -storepass "$KEYPASS" -keypass "$KEYPASS" -dname "CN=Luca Rossi, O=Merlo"
             mkdir -p "$(dirname "$KEY")"
             openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in merlo.jks -out "$KEY" -pass env:PASSWORD
             git config user.name "github-actions[bot]"
@@ -90,13 +94,14 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+          keytool -list -keystore merlo.jks -storepass "$KEYPASS" -alias merlo > /dev/null
           cat >> crates/app/Dioxus.toml <<EOF
 
           [bundle.android]
           jks_file = "merlo.jks"
-          jks_password = "$PASSWORD"
+          jks_password = "$KEYPASS"
           key_alias = "merlo"
-          key_password = "$PASSWORD"
+          key_password = "$KEYPASS"
           EOF
       - name: build APK
         # The runner ships the Android SDK; point dx at its newest NDK.
