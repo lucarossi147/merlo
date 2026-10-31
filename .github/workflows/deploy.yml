@@ -110,8 +110,13 @@ jobs:
           export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
           rm -rf target/dx/merlo/release/android
           dx bundle -p merlo --android --release --target aarch64-linux-android --package-types apk --out-dir dist
-          APK="$(find dist target/dx -name '*release*.apk' | head -n1)"
-          cp "${APK:-$(find dist target/dx -name '*.apk' | head -n1)}" merlo.apk
+          # dx 0.7 always ships its default icon and theme: lay ours over its generated
+          # Gradle project (crates/app/android/res) and package again.
+          GRADLE=target/dx/merlo/release/android/app
+          cp -r crates/app/android/res/. "$GRADLE/app/src/main/res/"
+          (cd "$GRADLE" && ./gradlew --quiet "$([ -f "$GITHUB_WORKSPACE/merlo.jks" ] && echo assembleRelease || echo assembleDebug)")
+          APK="$(find "$GRADLE" -name '*release*.apk' | head -n1)"
+          cp "${APK:-$(find "$GRADLE" -name '*.apk' | head -n1)}" merlo.apk
           rm -f merlo.jks
       - uses: actions/upload-artifact@v4
         with:

@@ -47,6 +47,12 @@ One-time setup on GitHub: **Settings → Pages → Source: GitHub Actions**.
 
 The APK is signed with a debug key, which is fine for your own phone. For the Play Store, add a `[bundle.android]` keystore to `Dioxus.toml`. iOS needs a Mac and an Apple developer account, so it isn't in CI yet.
 
+## Brand
+
+The logo is an eighth note that is also a blackbird: the notehead is the body, the stem is the neck and the flag is a wing. It lives in [`crates/app/assets/brand/logo.svg`](crates/app/assets/brand/logo.svg) and is drawn in-app by the `Logo` component.
+
+The Android launcher icons in `crates/app/android/res/` are generated from it by `python3 crates/app/assets/brand/make_icons.py`. The deploy workflow lays them over dx's defaults, along with a theme that keeps the app below the status bar on Android 15.
+
 ## Develop
 
 ```sh
