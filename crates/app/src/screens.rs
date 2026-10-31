@@ -1,6 +1,6 @@
 //! Screens. Each reads the shared state from context and renders core data.
 
-use crate::components::{Bar, Mark, Mascot, Mood, NamePad, Note, Piano, Staff, StarRow};
+use crate::components::{Bar, Logo, Mark, Mascot, Mood, NamePad, Note, Piano, Staff, StarRow};
 use crate::geometry::{heat, plot, points};
 use crate::platform;
 use crate::store::{self, Input, Saved, Settings};
@@ -73,9 +73,13 @@ fn Home() -> Element {
         _ => "Ready for today's song?",
     };
     rsx! {
+        div { class: "brand",
+            Logo { size: 34.0 }
+            span { class: "wordmark", "Merlo" }
+        }
         header { class: "topbar",
-            span { class: "pill streak", title: "Day streak", "🔥 {profile.streak}" }
-            span { class: "pill", title: "Level", "Lv {profile.level.level}" }
+            button { class: "pill streak", title: "Day streak", onclick: move |_| screen.set(Screen::Stats), "🔥 {profile.streak}" }
+            button { class: "pill", title: "Level", onclick: move |_| screen.set(Screen::Stats), "Lv {profile.level.level}" }
             Bar { value: f64::from(profile.level.into) / f64::from(profile.level.span), class: "xp" }
             button { class: "pill ghost", onclick: move |_| screen.set(Screen::Stats), "📈 Stats" }
         }

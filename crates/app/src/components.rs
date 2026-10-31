@@ -198,6 +198,26 @@ pub fn Mascot(#[props(default)] mood: Mood, #[props(default = 96.0)] size: f64) 
     }
 }
 
+/// The Merlo mark: an eighth note that is also a blackbird. Same artwork as
+/// `assets/brand/logo.svg`, from which the app icons are generated.
+#[component]
+pub fn Logo(#[props(default = 32.0)] size: f64) -> Element {
+    rsx! {
+        svg { class: "logo", width: size, height: size, view_box: "18 18 72 72", role: "img", "aria-label": "Merlo",
+            g { class: "plumage",
+                ellipse { cx: 42, cy: 73, rx: 14.5, ry: 10.5, transform: "rotate(-24 42 73)" }
+                path { d: "M52.6 68.5 L52.6 36 L57.4 36 L57.4 66 Z" }
+                path { d: "M57 41 C71 45 77 55 71.5 69 C72 59 66 52.5 57 50.5 Z" }
+                circle { cx: 58, cy: 32, r: 10 }
+            }
+            path { d: "M66.5 27.5 L81 32 L66.5 36.5 Z", class: "beak" }
+            circle { cx: 60.5, cy: 29.5, r: 3.6, class: "eye-ring" }
+            circle { cx: 60.9, cy: 29.5, r: 1.8, class: "pupil" }
+            circle { cx: 61.6, cy: 28.7, r: 0.6, fill: "white" }
+        }
+    }
+}
+
 #[component]
 pub fn StarRow(stars: u8) -> Element {
     rsx! {
@@ -281,6 +301,16 @@ mod tests {
         let sad = render_element(|| rsx! { Mascot { mood: Mood::Sad, size: 40.0 } });
         assert!(sad.contains("mascot sad") && !sad.contains("♪"));
         assert!(render_element(|| rsx! { Mascot {} }).contains("mascot idle"));
+    }
+
+    #[test]
+    fn logo_matches_the_brand_artwork() {
+        let html = render_element(|| rsx! { Logo { size: 24.0 } });
+        let svg = include_str!("../assets/brand/logo.svg");
+        for shape in ["M52.6 68.5 L52.6 36", "M57 41 C71 45", "M66.5 27.5 L81 32"] {
+            assert!(html.contains(shape) && svg.contains(shape), "{shape}");
+        }
+        assert!(html.contains("width=24"));
     }
 
     #[test]

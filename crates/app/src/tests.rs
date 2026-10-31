@@ -95,6 +95,15 @@ fn unused_helpers_stay_honest() {
 }
 
 #[test]
+fn home_shows_the_brand_and_every_top_pill_is_tappable() {
+    let html = render(practised(), Screen::Home);
+    assert!(html.contains("class=\"logo\"") && html.contains(">Merlo<"));
+    let topbar = html.split("class=\"topbar\"").nth(1).unwrap().split("</header>").next().unwrap();
+    assert_eq!(topbar.matches("<button").count(), 3, "streak, level and stats");
+    assert!(!topbar.contains("<span class=\"pill"));
+}
+
+#[test]
 fn home_offers_survivor() {
     let html = render(Saved::default(), Screen::Home);
     assert!(html.contains("mode-card") && html.contains("Survivor"));
